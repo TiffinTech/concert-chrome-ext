@@ -1,0 +1,32 @@
+#concert_list {
+  list-style-type: none;
+}
+
+.concert_container {
+  display: inline-grid;
+  grid-template-columns: 3rem auto 10rem;
+}
+
+.concert_name {
+  text-align: center;
+  padding-block: 0.5rem;
+}
+
+.concert_location {
+  height: 2rem;
+  width: 2rem;
+  cursor: pointer;
+}
+
+.concert_detail {
+  font-size: 0.5rem;
+  color: grey;
+  margin-block: auto 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.concert_image {
+  border-radius: 50%;
+  height: 2rem;
+  width: 2rem;
+}
