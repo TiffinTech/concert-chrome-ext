@@ -1,22 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Concert Line-up</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js"></script>
+  </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toronto Concert Line-up</title>
-</head>
-
-<body>
+  <body>
     <div>
-        <h2>Upcoming Toronto Concerts</h2>
-        <ul>
-            <li id="concerts"></li>
-        </ul>
+      <form id="concert_form">
+        <div class="input_container">
+          <label for="concert_location">Location</label>
+          <input type="text" name="location" id="concert_location" />
+        </div>
+        <div class="input_container">
+          <label for="concert_minDate">From Date</label>
+          <input type="date" name="minDate" id="concert_minDate" />
+        </div>
+        <div class="input_container">
+          <label for="concert_maxDate">To Date</label>
+          <input type="date" name="maxDate" id="concert_maxDate" />
+        </div>
+        <button type="submit">
+        <img src="search.svg" alt="submit icon" height="15px" width="15px">
+        Search
+        </button>
+      </form>
+      <h2 id="concert_heading"></h2>
+      <ul id="concert_list"></ul>
     </div>
-
-</body>
-<script src="script.js"></script>
-
+  </body>
 </html>
