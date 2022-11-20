@@ -1,22 +1,86 @@
-async function fetchData({
-  location = "Toronto",
-  minDate = "2022-10-01",
-  maxDate = "2022-10-01",
-  page = 1,
-}) {
-  const options = {
-    method: "GET",
-    headers: {
-      "X-RapidAPI-Key": "[INSERT API KEY]",
-      "X-RapidAPI-Host": "concerts-artists-events-tracker.p.rapidapi.com",
-    },
-  };
+class Storage {
+  constructor() {
+    this.storage = window.localStorage;
+    this.page = this.page ?? 1;
+    this.minDate = this.minDate ?? new Date().toLocaleDateString("en-CA");
 
-  const res = await fetch(
-    `https://concerts-artists-events-tracker.p.rapidapi.com/location?name=${location}&minDate=${minDate}&maxDate=${maxDate}&page=${page}`,
-    options
-  );
-  return res.json();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    this.maxDate =
+      this.maxDate ?? new Date(tomorrow).toLocaleDateString("en-CA");
+    this.location = this.location ?? "Toronto";
+  }
+
+  get data() {
+    return {
+      location: this.location,
+      page: this.page,
+      minDate: this.minDate,
+      maxDate: this.maxDate,
+    };
+  }
+
+  get location() {
+    return this.storage.getItem("concert_location");
+  }
+
+  set location(value) {
+    this.storage.setItem("concert_location", value);
+  }
+
+  get page() {
+    return this.storage.getItem("concert_page");
+  }
+
+  set page(value) {
+    this.storage.setItem("concert_page", value);
+  }
+
+  get minDate() {
+    return this.storage.getItem("concert_minDate");
+  }
+
+  set minDate(value) {
+    this.storage.setItem("concert_minDate", value);
+  }
+
+  get maxDate() {
+    return this.storage.getItem("concert_maxDate");
+  }
+
+  set maxDate(value) {
+    this.storage.setItem("concert_maxDate", value);
+  }
+}
+
+async function linkForm() {
+  const formElement = document.getElementById("concert_form");
+  const storage = new Storage();
+
+  for (const inputField of formElement.querySelectorAll(
+    ".input_container > input"
+  )) {
+    const name = inputField.getAttribute("name");
+    inputField.value = storage[name];
+  }
+
+  formElement.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    for (const inputField of formElement.querySelectorAll(
+      ".input_container > input"
+    )) {
+      const name = inputField.getAttribute("name");
+      storage[name] = inputField.value;
+    }
+
+    await updateConcerts(storage.data);
+  });
+}
+
+function updateHeading(location) {
+  const heading = document.getElementById("concert_heading");
+  heading.innerText = `Upcoming ${location} Concerts`;
 }
 
 function dateToLocale(date) {
@@ -77,9 +141,35 @@ function createConcert({
   return li;
 }
 
-async function updateConcerts() {
-  const { data } = await fetchData({});
+async function fetchData({ location, minDate, maxDate, page }) {
+  const options = {
+    method: "GET",
+    headers: {
+      "X-RapidAPI-Key": "[INSERT API KEY]",
+      "X-RapidAPI-Host": "concerts-artists-events-tracker.p.rapidapi.com",
+    },
+  };
 
+  const res = await fetch(
+    `https://concerts-artists-events-tracker.p.rapidapi.com/location?name=${location}&minDate=${minDate}&maxDate=${maxDate}&page=${page}`,
+    options
+  );
+  return res.json();
+}
+
+async function updateConcerts({ location, minDate, maxDate, page }) {
+  let data;
+  try {
+    ({ data } = await fetchData({ location, minDate, maxDate, page }));
+  } catch (e) {
+    throw new Error("Could not fetch the data");
+  }
+
+  if (!data || data.length === 0) throw new Error("Data not recieved");
+
+  updateHeading(location);
+
+  document.getElementById("concert_list").replaceChildren([]);
   data.map((concertData) => {
     const concertElement = createConcert({
       image: concertData.image,
@@ -96,4 +186,10 @@ async function updateConcerts() {
   });
 }
 
-window.addEventListener("load", () => updateConcerts().catch(console.error));
+async function main() {
+  const storage = new Storage();
+  await updateConcerts(storage.data);
+  linkForm();
+}
+
+window.addEventListener("load", () => main().catch(console.error));
